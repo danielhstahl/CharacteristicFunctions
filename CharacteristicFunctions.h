@@ -5,6 +5,11 @@
 #include "FunctionalUtilities.h" 
 #include "RungeKutta.h" 
 
+
+/**
+    All these Characteristic Functions are with respect to ui, not u. Hence the Gaussian CF, for example, is exp(u*mu+u*u*sigma*sigma*.5) instead of exp(u*mu*i-u*u*sigma*sigma*.5)
+
+*/
 namespace chfunctions { 
     auto gaussCF(const auto& u, const auto& mu, const auto& sigma){
         return exp(u*mu+u*u*sigma*sigma*.5);
@@ -51,25 +56,31 @@ namespace chfunctions {
         };
     }*/
 
-    /**Helper function to compute ODE series found in http://web.stanford.edu/~duffie/dps.pdf page 10. 
+
+    /**
+    Equation for Beta'(t, T) or Alpha'(t, T)
+    */
+    auto ODE(const auto& currVal, const auto& rho, const auto& K, const auto& H, const auto& l, const auto& cfPart){
+        return rho-K*currVal-.5*currVal*currVal*H-l*cfPart;
+    }
+    /**Helper function to compute ODE series found in http://web.stanford.edu/~duffie/dps.pdf page 10. Because of a "measure change" the addition parameter "u" is introduced.  
     note that this is with respect to T-t not t so the equations have signs switched
     */
     template<typename T>
     std::vector<T > duffieODE(const auto& u, const std::vector<T >& currentValues, const auto& rho0, const auto& rho1, const auto& K0, const auto& K1, const auto& H0, const auto& H1, const auto& l0, const auto& l1, auto&& cf){ //double alpha, double mu, double beta, double c,
-        //auto sig=sigma*sigma*.5;
         auto cfPart=cf(u)-1.0;
-        auto sigPart=currentValues[0]*currentValues[0]*.5;
         return //beta, alpha
         {
-            -(rho1-K1*currentValues[0]-sigPart*H1-l1*cfPart),
-            -(rho0-K0*currentValues[0]-sigPart*H0-l0*cfPart)
+            -ODE(currentValues[0], rho1, K1, H1, l1, cfPart),
+            -ODE(currentValues[0], rho0, K0, H0, l0, cfPart)
         };
     }
+    
     /**Helper function to compute ODE series found in http://web.stanford.edu/~duffie/dps.pdf page 10. 
     note that this is with respect to T-t not t so the equations have signs switched
     */
     template<typename T>
-    std::vector<T > duffieODEStandard(const std::vector<T >& currentValues, const auto& rho0, const auto& rho1, const auto& K0, const auto& K1, const auto& H0, const auto& H1, const auto& l0, const auto& l1, auto&& cf){ //double alpha, double mu, double beta, double c,
+    std::vector<T > duffieODE(const std::vector<T >& currentValues, const auto& rho0, const auto& rho1, const auto& K0, const auto& K1, const auto& H0, const auto& H1, const auto& l0, const auto& l1, auto&& cf){ //double alpha, double mu, double beta, double c,
         //auto sig=sigma*sigma*.5;
         return duffieODE(currentValues[0], currentValues, rho0, rho1, K0, K1, H0, H1, l0, l1, cf);
     }
@@ -82,43 +93,5 @@ namespace chfunctions {
     T expAffine(const std::vector<T>& vals, const auto& v0){
         return exp(vals[0]*v0+vals[1]);
     }
-    /**
-
-    */
-    /*template<typename T>
-    T jumpProcess(
-        const T& u, 
-        const auto& t, 
-        const auto& numODE, 
-        const auto& lambda, //jump
-        const auto& sigma,  //volatility of process
-        const auto& a, //speed of mean reversion
-        const auto& b, //mean
-        const auto& delta, //"correlation"
-        const auto& v0, //initial value
-        auto&& cf //jump CF
-    ){
-        return expAffine(
-            rungekutta::computeFunctional(t, numODE, std::vector<T>({0, 0}),
-                [&](double t, const std::vector<T>& x){
-                    //return duffieODE(u, cf, x, sigma, lambda, a, delta, b);
-                    return duffieODE(
-                        u+delta*x[0],//u
-                        x, //init values
-                        0.0, //rho0
-                        0.0, //rho1
-                        -a*b, //K0
-                        -a, //K1,
-                        0.0, //H0
-                        sigma*sigma, //H1, 
-                        0.0,//l0
-                        lambda, //l1
-                        cf
-                    );
-                }
-            ),
-            v0
-        );
-    }*/
 }
 #endif
