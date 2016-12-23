@@ -11,7 +11,8 @@
 
 */
 namespace chfunctions { 
-    auto gaussCF(const auto& u, const auto& mu, const auto& sigma){
+    template<typename Number1, typename Number2>
+    auto gaussCF(const Number1& u, const Number2& mu, const Number2& sigma){
         return exp(u*mu+u*u*sigma*sigma*.5);
     }
 
@@ -26,15 +27,18 @@ namespace chfunctions {
     @returns CF for stable at u
     @
     */
-    template<typename T>
-    auto stableCF(const std::complex<T>& u, const auto& alpha, const auto& mu, const auto& beta, const auto& c){
+    template<typename T, typename Number>
+    auto stableCF(const std::complex<T>& u, const Number& alpha, const Number& mu, const Number& beta, const Number& c){
         auto phi=tan(alpha*.5*M_PI);
         return exp(u*mu-pow(u*std::complex<T>(0, -1)*c, alpha)*std::complex<T>(1, -beta*phi));
     }
-    auto gammaCF(const auto& u, const auto& a, const auto& b){
+    template<typename Number1, typename Number2>
+    auto gammaCF(const Number1& u, const Number2& a, const Number2& b){
         return pow(1-u*b, -a);
     }
-    auto inverseGaussianCF(const auto& u, const auto& mu, const auto& lambda){
+    
+    template<typename Number1, typename Number2>
+    auto inverseGaussianCF(const Number1& u, const Number2& mu, const Number2& lambda){
         return exp((lambda/mu)*(1-sqrt(1-(2*mu*mu*u)/lambda)));
     }
 
@@ -60,14 +64,26 @@ namespace chfunctions {
     /**
     Equation for Beta'(t, T) or Alpha'(t, T)
     */
-    auto ODE(const auto& currVal, const auto& rho, const auto& K, const auto& H, const auto& l, const auto& cfPart){
+    template<typename Number>
+    auto ODE(const Number& currVal, const Number& rho, const Number& K, const Number& H, const Number& l, const Number& cfPart){
         return rho-K*currVal-.5*currVal*currVal*H-l*cfPart;
     }
     /**Helper function to compute ODE series found in http://web.stanford.edu/~duffie/dps.pdf page 10. Because of a "measure change" the addition parameter "u" is introduced.  
     note that this is with respect to T-t not t so the equations have signs switched
     */
-    template<typename T>
-    std::vector<T > duffieODE(const auto& u, const std::vector<T >& currentValues, const auto& rho0, const auto& rho1, const auto& K0, const auto& K1, const auto& H0, const auto& H1, const auto& l0, const auto& l1, auto&& cf){ //double alpha, double mu, double beta, double c,
+    template<typename T, typename Number1, typename Number2, typename CF>
+    std::vector<T > duffieODE(
+        const Number1& u, 
+        const std::vector<T >& currentValues, 
+        const Number2& rho0, 
+        const Number2& rho1, 
+        const Number2& K0, 
+        const Number2& K1, 
+        const Number2& H0, 
+        const Number2& H1, 
+        const Number2& l0, 
+        const Number2& l1, 
+        CF&& cf){ //double alpha, double mu, double beta, double c,
         auto cfPart=cf(u)-1.0;
         return //beta, alpha
         {
@@ -79,8 +95,18 @@ namespace chfunctions {
     /**Helper function to compute ODE series found in http://web.stanford.edu/~duffie/dps.pdf page 10. 
     note that this is with respect to T-t not t so the equations have signs switched
     */
-    template<typename T>
-    std::vector<T > duffieODE(const std::vector<T >& currentValues, const auto& rho0, const auto& rho1, const auto& K0, const auto& K1, const auto& H0, const auto& H1, const auto& l0, const auto& l1, auto&& cf){ //double alpha, double mu, double beta, double c,
+    template<typename T, typename Number1, typename CF>
+    std::vector<T > duffieODE(
+        const std::vector<T >& currentValues, 
+        const Number1& rho0, 
+        const Number1& rho1, 
+        const Number1& K0, 
+        const Number1& K1, 
+        const Number1& H0, 
+        const Number1& H1, 
+        const Number1& l0, 
+        const Number1& l1, 
+        CF&& cf){ //double alpha, double mu, double beta, double c,
         //auto sig=sigma*sigma*.5;
         return duffieODE(currentValues[0], currentValues, rho0, rho1, K0, K1, H0, H1, l0, l1, cf);
     }
@@ -89,8 +115,8 @@ namespace chfunctions {
     /**
     Helper function to compute expontential of the Duffie ODE
     */
-    template<typename T>
-    T expAffine(const std::vector<T>& vals, const auto& v0){
+    template<typename T, typename Number>
+    T expAffine(const std::vector<T>& vals, const Number& v0){
         return exp(vals[0]*v0+vals[1]);
     }
 }
