@@ -64,8 +64,8 @@ namespace chfunctions {
     /**
     Equation for Beta'(t, T) or Alpha'(t, T)
     */
-    template<typename Number>
-    auto ODE(const Number& currVal, const Number& rho, const Number& K, const Number& H, const Number& l, const Number& cfPart){
+    template<typename Number, typename Rho, typename KType, typename HType, typename L, typename CFPart>
+    auto ODE(const Number& currVal, const Rho& rho, const KType& K, const HType& H, const L& l, const CFPart& cfPart){
         return rho-K*currVal-.5*currVal*currVal*H-l*cfPart;
     }
     /**Helper function to compute ODE series found in http://web.stanford.edu/~duffie/dps.pdf page 10. Because of a "measure change" the addition parameter "u" is introduced.  
