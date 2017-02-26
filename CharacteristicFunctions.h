@@ -42,32 +42,15 @@ namespace chfunctions {
         return exp((lambda/mu)*(1-sqrt(1-(2*mu*mu*u)/lambda)));
     }
 
-    /**
-    Helper function to compute ODE series found in http://web.stanford.edu/~duffie/dps.pdf page 10. THIS NEEDS TO BE MORE GENERIC!!!  Only a subset of duffie's ODEs
-    @u complex value for phi(u)
-    @cf characteristic function of the "jump" process
-    @currentValues currentValues of the the system of ODEs
-    @sigma volatility of diffusion
-    @lambda 
-    */
-   /* template<typename T>
-    std::vector<T > duffieODE(const auto& u, auto&& cf, const std::vector<T >& currentValues, double sigma, double lambda, double a, double delta, double b){ //double alpha, double mu, double beta, double c,
-        auto sig=sigma*sigma*.5;
-        return 
-        {
-            currentValues[0]*currentValues[0]*sig+cf(u+currentValues[0]*delta)*lambda-lambda-currentValues[0]*a, 
-            currentValues[0]*b*a
-        };
-    }*/
-
 
     /**
-    Equation for Beta'(t, T) or Alpha'(t, T)
+    Explicit "solution" for Beta'(t, T) or Alpha'(t, T)
     */
     template<typename Number, typename Rho, typename KType, typename HType, typename L, typename CFPart>
-    auto ODE(const Number& currVal, const Rho& rho, const KType& K, const HType& H, const L& l, const CFPart& cfPart){
+    auto explSol(const Number& currVal, const Rho& rho, const KType& K, const HType& H, const L& l, const CFPart& cfPart){
         return rho-K*currVal-.5*currVal*currVal*H-l*cfPart;
     }
+    
     /**Helper function to compute ODE series found in http://web.stanford.edu/~duffie/dps.pdf page 10. Because of a "measure change" the addition parameter "u" is introduced.  
     note that this is with respect to T-t not t so the equations have signs switched
     */
@@ -83,12 +66,29 @@ namespace chfunctions {
         const Number2& H1, 
         const Number2& l0, 
         const Number2& l1, 
-        CF&& cf){ //double alpha, double mu, double beta, double c,
+        CF&& cf
+    ){ //double alpha, double mu, double beta, double c,
         auto cfPart=cf(u)-1.0;
         return //beta, alpha
         {
-            -ODE(currentValues[0], rho1, K1, H1, l1, cfPart),
-            -ODE(currentValues[0], rho0, K0, H0, l0, cfPart)
+            -explSol(currentValues[0], rho1, K1, H1, l1, cfPart),
+            -explSol(currentValues[0], rho0, K0, H0, l0, cfPart)
+        };
+    }
+
+    /**Curried function.  Can be called for either Alpha' or Beta'*/
+    template<typename T>
+    auto AlphaOrBeta(const T& rho, const T& K, const T& H, const T& l){
+        return [&](const auto& val, const auto& cf){
+            return -explSol(val, rho, K, H, l, cf);
+        };
+    }
+
+    /**Curried function for stableCF.*/
+    template<typename Number>
+    auto augCF(const Number& alpha, const Number& mu, const Number& beta, const Number& c){
+        return [&](const auto& u){
+            return stableCF(u, alpha, mu, beta, c)-1.0;
         };
     }
     

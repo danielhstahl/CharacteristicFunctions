@@ -25,8 +25,8 @@ TEST_CASE("Test ODE", "[Functional]"){
     
     auto sigma=sig*sig*.5;
     auto cfPart=cf(u+delta*currentValues[0])-1.0;
-    REQUIRE(-chfunctions::ODE(currentValues[0], rho1, K1, H1, l1, cfPart)==currentValues[0]*currentValues[0]*sigma+cf(u+currentValues[0]*delta)*lambda-lambda-currentValues[0]*a);
-    REQUIRE(-chfunctions::ODE(currentValues[0], rho0, K0, H0, l0, cfPart)==currentValues[0]*a*b);
+    REQUIRE(-chfunctions::explSol(currentValues[0], rho1, K1, H1, l1, cfPart)==currentValues[0]*currentValues[0]*sigma+cf(u+currentValues[0]*delta)*lambda-lambda-currentValues[0]*a);
+    REQUIRE(-chfunctions::explSol(currentValues[0], rho0, K0, H0, l0, cfPart)==currentValues[0]*a*b);
 }
 
 TEST_CASE("Test CIR", "[Functional]"){
@@ -46,13 +46,12 @@ TEST_CASE("Test CIR", "[Functional]"){
     auto BondPrice=AtT*exp(-BtT*r0);
 
 
-    std::vector<double> currentValues({0, 0});
     auto rho1=1.0;
     auto k0=a*b;
     auto k1=-a;
     auto H1=sig*sig;
     auto approxBondPrice=chfunctions::expAffine(
-        rungekutta::computeFunctional(T, 1024, std::vector<double >({0, 0}),
+        rungekutta::computeFunctional(T, 2048, std::vector<double >({0, 0}),
             [&](double t, const std::vector<double>& x){
                 return chfunctions::duffieODE(
                     x, //current values
@@ -68,6 +67,42 @@ TEST_CASE("Test CIR", "[Functional]"){
                         return 0;
                     }
                 );
+            }
+        ),
+        r0
+    );
+    REQUIRE(approxBondPrice==Approx(BondPrice));
+}
+TEST_CASE("Test CIR with curried function", "[Functional]"){
+    
+    auto sig=.3;
+    auto a=.3;
+    auto b=.05;
+    auto r0=.05;
+    auto h=sqrt(a*a+2*sig*sig);
+    auto T=1.0;
+    auto aNum=2*h*exp((a+h)*T*.5);
+    auto aDen=2*h+(a+h)*(exp(T*h)-1.0);
+    auto AtT=pow(aNum/aDen, (2*a*b)/(sig*sig));
+    auto bNum=2*(exp(T*h)-1.0);
+    auto bDen=aDen;
+    auto BtT=bNum/bDen;
+    auto BondPrice=AtT*exp(-BtT*r0);
+
+
+    auto rho1=1.0;
+    auto k0=a*b;
+    auto k1=-a;
+    auto H1=sig*sig;
+    auto beta=chfunctions::AlphaOrBeta(rho1, k1, H1, 0.0);
+    auto alpha=chfunctions::AlphaOrBeta(0.0, k0, 0.0, 0.0);
+    auto approxBondPrice=chfunctions::expAffine(
+        rungekutta::computeFunctional(T, 2048, std::vector<double >({0, 0}),
+            [&](double t, const std::vector<double>& x){
+                return std::vector<double>({
+                    beta(x[0], -1.0),
+                    alpha(x[0], -1.0)
+                });
             }
         ),
         r0
