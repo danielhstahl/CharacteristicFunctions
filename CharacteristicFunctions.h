@@ -11,9 +11,31 @@
 
 */
 namespace chfunctions { 
-    template<typename Number1, typename Number2>
-    auto gaussCF(const Number1& u, const Number2& mu, const Number2& sigma){
-        return exp(u*mu+u*u*sigma*sigma*.5);
+
+
+    template<typename T, typename Number1, typename Number2>
+    auto gaussLogCF(const std::complex<T>& u, const Number1& mu, const Number2& sigma){
+        return u*mu+.5*futilities::const_power(sigma*u, 2);
+    }
+    template<typename T, typename Number1, typename Number2>
+    auto gaussCF(const std::complex<T>& u, const Number1& mu, const Number2& sigma){
+        return exp(gaussLogCF(u, mu, sigma));
+    }
+    //see http://finance.martinsewell.com/stylized-facts/distribution/CarrGemanMadanYor2002.pdf pg 10
+    template<typename U,  typename Number>
+    auto cgmyLogCF(const U& u, const Number& C, const Number& G, const Number& M, const Number& Y){
+        return C*tgamma(-Y)*(
+            pow(M-u, Y)+pow(G+u, Y)-pow(M, Y)-pow(G, Y)
+        );
+    }
+    //see http://finance.martinsewell.com/stylized-facts/distribution/CarrGemanMadanYor2002.pdf pg 12 and 13
+    template<typename Number, typename T>
+    auto cgmyLogRNCF(const std::complex<T>& u, const Number& C, const Number& G, const Number& M, const Number& Y, const Number& r,  const Number& sigma){
+        return gaussLogCF(u, 
+            r-futilities::const_power(sigma, 2)*.5-cgmyLogCF(1.0, C, G, M, Y),
+            sigma
+        )+cgmyLogCF(u, C, G, M, Y);
+        //return exp(initExp);
     }
 
     /**

@@ -3,7 +3,7 @@
 #include "CharacteristicFunctions.h"
 
 
-TEST_CASE("Test ODE", "[Functional]"){
+TEST_CASE("Test ODE", "[CF]"){
     std::vector<double> currentValues({.5, .5});
     auto sig=.3;
     auto a=.3;
@@ -29,7 +29,7 @@ TEST_CASE("Test ODE", "[Functional]"){
     REQUIRE(-chfunctions::explSol(currentValues[0], rho0, K0, H0, l0, cfPart)==currentValues[0]*a*b);
 }
 
-TEST_CASE("Test CIR", "[Functional]"){
+TEST_CASE("Test CIR", "[CF]"){
     
     auto sig=.3;
     auto a=.3;
@@ -73,7 +73,7 @@ TEST_CASE("Test CIR", "[Functional]"){
     );
     REQUIRE(approxBondPrice==Approx(BondPrice));
 }
-TEST_CASE("Test CIR with curried function", "[Functional]"){
+TEST_CASE("Test CIR with curried function", "[CF]"){
     
     auto sig=.3;
     auto a=.3;
@@ -107,5 +107,9 @@ TEST_CASE("Test CIR with curried function", "[Functional]"){
         ),
         r0
     );
-    REQUIRE(approxBondPrice==Approx(BondPrice));
+    REQUIRE(approxBondPrice==Approx(BondPrice).epsilon(.0001));
 }
+
+/*TEST_CASE("Test CGMY", "[CF]"){
+
+}*/
