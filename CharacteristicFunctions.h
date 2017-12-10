@@ -13,12 +13,12 @@
 namespace chfunctions { 
 
 
-    template<typename T, typename Number1, typename Number2>
-    auto gaussLogCF(const std::complex<T>& u, const Number1& mu, const Number2& sigma){
+    template<typename T, typename Number>
+    auto gaussLogCF(const std::complex<T>& u, const Number& mu, const Number& sigma){
         return u*mu+.5*futilities::const_power(sigma*u, 2);
     }
-    template<typename T, typename Number1, typename Number2>
-    auto gaussCF(const std::complex<T>& u, const Number1& mu, const Number2& sigma){
+    template<typename T, typename Number>
+    auto gaussCF(const std::complex<T>& u, const Number& mu, const Number& sigma){
         return exp(gaussLogCF(u, mu, sigma));
     }
     //see http://finance.martinsewell.com/stylized-facts/distribution/CarrGemanMadanYor2002.pdf pg 10
