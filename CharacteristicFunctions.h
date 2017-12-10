@@ -35,7 +35,6 @@ namespace chfunctions {
             r-futilities::const_power(sigma, 2)*.5-cgmyLogCF(1.0, C, G, M, Y),
             sigma
         )+cgmyLogCF(u, C, G, M, Y);
-        //return exp(initExp);
     }
 
     /**
