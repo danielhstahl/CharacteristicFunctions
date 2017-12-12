@@ -37,6 +37,22 @@ namespace chfunctions {
         )+cgmyLogCF(u, C, G, M, Y);
     }
 
+    template<typename U, typename A, typename Kappa, typename Sigma,typename T, typename V>
+    auto cirLogMGF(const U& lambda,  const A& a, const Kappa& kappa, const Sigma& sigma,const T& t, const V& v0){
+        const auto delta=sqrt(futilities::const_power(kappa, 2)+2.0*lambda*futilities::const_power(sigma, 2));
+        const auto expT=exp(-delta*t);
+        const auto deltMinusKappa=delta-kappa;
+        const auto bT=2.0*lambda*(1.0-expT)/(delta+kappa+deltMinusKappa*expT);
+        auto cT=(a/futilities::const_power(sigma, 2))*(2.0*log(
+            (2.0*delta-deltMinusKappa*(1.0-expT))/(2.0*delta)
+        )+deltMinusKappa*t);
+        return -bT*v0-cT;
+    }
+    template<typename U, typename A, typename Kappa, typename Sigma,typename T, typename V>
+    auto cirMGF(const U& lambda,  const A& a, const Kappa& kappa, const Sigma& sigma,const T& t, const V& v0){
+        return exp(cirLogMGF(lambda, a, kappa, sigma, t, v0));
+    }
+
     /**
     CF of a stable distribution.  
     Stable distribution is defined by CF exp(iu*mu-abs(cu)^alpha (1-beta*sign(u)*tan(pi*alpha*.5)))

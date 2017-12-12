@@ -73,6 +73,25 @@ TEST_CASE("Test CIR", "[CF]"){
     );
     REQUIRE(approxBondPrice==Approx(BondPrice));
 }
+TEST_CASE("Test CIR with analytical", "[CF]"){
+    
+    auto sig=.3;
+    auto a=.3;
+    auto b=.05;
+    auto r0=.05;
+    auto h=sqrt(a*a+2*sig*sig);
+    auto T=.25;
+    auto aNum=2*h*exp((a+h)*T*.5);
+    auto aDen=2*h+(a+h)*(exp(T*h)-1.0);
+    auto AtT=pow(aNum/aDen, (2*a*b)/(sig*sig));
+    auto bNum=2*(exp(T*h)-1.0);
+    auto bDen=aDen;
+    auto BtT=bNum/bDen;
+    auto BondPrice=AtT*exp(-BtT*r0);
+
+    auto approxBondPrice=chfunctions::cirMGF(1.0, a*b, a, sig, T, r0);
+    REQUIRE(approxBondPrice==Approx(BondPrice));
+}
 TEST_CASE("Test CIR with curried function", "[CF]"){
     
     auto sig=.3;
