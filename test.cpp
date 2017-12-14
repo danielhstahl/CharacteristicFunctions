@@ -92,6 +92,32 @@ TEST_CASE("Test CIR with analytical", "[CF]"){
     auto approxBondPrice=chfunctions::cirMGF(1.0, a*b, a, sig, T, r0);
     REQUIRE(approxBondPrice==Approx(BondPrice));
 }
+TEST_CASE("Test CIR with Heston", "[CF]"){
+    
+    auto T=.25;
+    auto k=.2;
+    auto a=.2;
+    auto v0=.98;
+    auto sig=.2;
+    auto rho=-.3;
+    auto sigTot=.3;
+    auto u=std::complex<double>(.5, .5);
+    auto psi=.5*sigTot*sigTot*(u+u*u);
+    auto kStar=k-u*rho*sig*sigTot;
+    auto ada=sqrt(kStar*kStar+2*sig*sig*psi);
+    auto bT=2.0*psi*(1.0-exp(-ada*T))/(2.0*ada-(ada-kStar)*(1.0-exp(-ada*T)));
+    auto cT=(k/(sig*sig))*(2.0*log(1.0-(1.0-exp(-ada*T))*(ada-kStar)/(2.0*ada))+(ada-kStar)*T);
+    auto cfHeston=exp(-bT*v0-cT).real();
+
+    /**-chfunctions::gaussLogCF(u, -sig*sig*.5, sig),
+            a, 
+            kappa-adaV*rho*u*sig,
+            adaV,
+            T, 
+            v0*/
+    auto approxBondPrice=chfunctions::cirMGF(psi, k, kStar, sig, T, v0);
+    REQUIRE(approxBondPrice.real()==Approx(cfHeston));
+}
 TEST_CASE("Test CIR with curried function", "[CF]"){
     
     auto sig=.3;
