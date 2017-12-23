@@ -1,0 +1,36 @@
+\documentclass{article}
+\usepackage{amsmath}
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+\section{Time change and Heston}
+
+The diffusion time change model:
+
+\begin{align}
+dS=rS dt+\sigma S dW_\tau ^1 \\
+\tau=\int_0 ^t \bar{v} ds \\
+d\bar{v}=k(1-\bar{v})dt+\eta \sqrt{\bar{v}}dW_{t} ^2 \\
+dW^1 dW^2 = \rho dt
+\end{align}
+
+and the traditional Heston model:
+
+\begin{align}
+dS=rS dt+\sqrt{v} S dW_{t}^1 \\
+dv=a(b-v)dt+c \sqrt{v}dW_{t}^2 \\
+dW^1 dW^2 =\rho dt
+\end{align}
+
+are equivalent.  To get from the Heston to time change, use the following change of variables:
+
+\begin{align} 
+k=a \\
+\eta=\frac{c}{\sqrt{b}}\\
+\sigma=\sqrt{b}\\
+\bar{v_0}=\frac{v_0}{b}
+\end{align}
+
+
+
+\end{document}

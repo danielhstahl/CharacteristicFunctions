@@ -3,3 +3,6 @@
 test
 *.gcno
 *.gcda
+*.log
+*.gz
+*.tex
