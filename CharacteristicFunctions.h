@@ -46,7 +46,7 @@ namespace chfunctions {
         const auto bT=2.0*psi*(1.0-expT)/(delta+kappa+deltMinusKappa*expT);
         auto cT=sigma>0?(a/futilities::const_power(sigma, 2))*(2.0*log(
             1.0-deltMinusKappa*(1.0-expT)/(2.0*delta)
-        )+deltMinusKappa*t):0.0;
+        )+deltMinusKappa*t):psi*(t-(1.0-expT)/kappa);
         return -bT*v0-cT;
     }
     template<typename Psi, typename A, typename Kappa, typename Sigma,typename T, typename V>
