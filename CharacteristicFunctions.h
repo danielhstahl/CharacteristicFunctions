@@ -36,16 +36,17 @@ namespace chfunctions {
             sigma
         )+cgmyLogCF(u, C, G, M, Y);
     }
-
+    //note that this is of the form a-kappa*v NOT a(kappa-v)
+    //see https://pdfs.semanticscholar.org/67cd/b553e2624c79a960ff79d0dfe6e6833690a7.pdf pg 14
     template<typename Psi, typename A, typename Kappa, typename Sigma,typename T, typename V>
     auto cirLogMGF(const Psi& psi,  const A& a, const Kappa& kappa, const Sigma& sigma,const T& t, const V& v0){
         const auto delta=sqrt(futilities::const_power(kappa, 2)+2.0*psi*futilities::const_power(sigma, 2));
         const auto expT=exp(-delta*t);
         const auto deltMinusKappa=delta-kappa;
         const auto bT=2.0*psi*(1.0-expT)/(delta+kappa+deltMinusKappa*expT);
-        auto cT=(a/futilities::const_power(sigma, 2))*(2.0*log(
-            (2.0*delta-deltMinusKappa*(1.0-expT))/(2.0*delta)
-        )+deltMinusKappa*t);
+        auto cT=sigma>0?(a/futilities::const_power(sigma, 2))*(2.0*log(
+            1.0-deltMinusKappa*(1.0-expT)/(2.0*delta)
+        )+deltMinusKappa*t):0.0;
         return -bT*v0-cT;
     }
     template<typename Psi, typename A, typename Kappa, typename Sigma,typename T, typename V>

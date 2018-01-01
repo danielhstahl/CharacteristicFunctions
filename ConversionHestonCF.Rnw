@@ -2,7 +2,7 @@
 \usepackage{amsmath}
 \begin{document}
 \SweaveOpts{concordance=TRUE}
-
+\setlength{\parindent}{0cm}
 \section{Time change and Heston}
 
 The diffusion time change model:
@@ -30,6 +30,10 @@ k=a \\
 \sigma=\sqrt{b}\\
 \bar{v_0}=\frac{v_0}{b}
 \end{align}
+
+\section{Time change and Black Scholes}
+
+The diffusion time change model from above should reduce to the Black Scholes model if \(\bar{v_0}=1\) and \(\eta=0\). However, the solution to the moment generating function has \(\eta\) in the denominator.  
 
 
 
