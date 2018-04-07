@@ -24,15 +24,12 @@ namespace chfunctions {
     //see http://finance.martinsewell.com/stylized-facts/distribution/CarrGemanMadanYor2002.pdf pg 10
     template<typename U,  typename Number>
     auto cgmyLogCF(const U& u, const Number& C, const Number& G, const Number& M, const Number& Y){
-        if(Y==1.0){
-            return 0.0;
-        }
-        else if(Y==0.0){
-            return C*log((1.0-u/G)*(1.0+u/M));
-        }
-        else {
-            return C*tgamma(-Y)*(pow(M-u, Y)+pow(G+u, Y)-pow(M, Y)-pow(G, Y));
-        }
+
+        return Y==1.0?
+            0.0:
+            Y==0.0?
+            C*log((1.0-u/G)*(1.0+u/M)):
+            C*tgamma(-Y)*(pow(M-u, Y)+pow(G+u, Y)-pow(M, Y)-pow(G, Y));
     }
     //see http://finance.martinsewell.com/stylized-facts/distribution/CarrGemanMadanYor2002.pdf pg 12 and 13
     template<typename Number, typename T>
