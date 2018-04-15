@@ -14,13 +14,22 @@ namespace chfunctions {
 
 
     template<typename T, typename Number>
-    auto gaussLogCF(const std::complex<T>& u, const Number& mu, const Number& sigma){
+    auto gaussLogCF(const T& u, const Number& mu, const Number& sigma){
         return u*mu+.5*futilities::const_power(sigma*u, 2);
     }
     template<typename T, typename Number>
-    auto gaussCF(const std::complex<T>& u, const Number& mu, const Number& sigma){
+    auto gaussCF(const T& u, const Number& mu, const Number& sigma){
         return exp(gaussLogCF(u, mu, sigma));
     }
+    template<typename T, typename Number>
+    auto mertonLogCF(const T& u, const Number& lambda, const Number& muL, const Number& sigL){
+        return lambda*(gaussCF(u, muL, sigL)-1.0);
+    }
+    template<typename T, typename Number>
+    auto mertonLogRNCF(const T& u, const Number& lambda, const Number& muL, const Number, sigL, const Number& r,  const Number& sigma){
+        return gaussLogCF(u, r-futilities::const_power(sigma, 2)*.5-mertonLogCF(1.0, lambda, muL, sigL), sigma)+mertonLogCF(u, lambda, muL, sigL);
+    }
+
     //see http://finance.martinsewell.com/stylized-facts/distribution/CarrGemanMadanYor2002.pdf pg 10
     template<typename U,  typename Number>
     auto cgmyLogCF(const U& u, const Number& C, const Number& G, const Number& M, const Number& Y){
