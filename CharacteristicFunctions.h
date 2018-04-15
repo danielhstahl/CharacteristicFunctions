@@ -26,7 +26,7 @@ namespace chfunctions {
         return lambda*(gaussCF(u, muL, sigL)-1.0);
     }
     template<typename T, typename Number>
-    auto mertonLogRNCF(const T& u, const Number& lambda, const Number& muL, const Number, sigL, const Number& r,  const Number& sigma){
+    auto mertonLogRNCF(const T& u, const Number& lambda, const Number& muL, const Number& sigL, const Number& r,  const Number& sigma){
         return gaussLogCF(u, r-futilities::const_power(sigma, 2)*.5-mertonLogCF(1.0, lambda, muL, sigL), sigma)+mertonLogCF(u, lambda, muL, sigL);
     }
 
