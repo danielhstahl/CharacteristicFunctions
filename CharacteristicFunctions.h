@@ -97,14 +97,36 @@ namespace chfunctions {
         return lambda/(lambda-u);
     }
 
-
-    /**
-    Explicit "solution" for Beta'(t, T) or Alpha'(t, T)
-    */
-    template<typename Number, typename Rho, typename KType, typename HType, typename L, typename CFPart>
-    auto explSol(const Number& currVal, const Rho& rho, const KType& K, const HType& H, const L& l, const CFPart& cfPart){
-        return rho-K*currVal-.5*currVal*currVal*H-l*cfPart;
+    /**Curried function.  Can be called for either Alpha' or Beta'*/
+    template<typename Rho, typename KType, typename HType, typename LType>
+    auto AlphaOrBeta(const Rho& rho, const KType& K, const HType& H, const LType& l){
+        return [=](const auto& val, const auto& cfPart){
+            return -rho+K*val+.5*futilities::const_power(val, 2)*H+l*cfPart;
+        };
     }
+
+
+    /**Curried function for Carr Wu (2004) */
+    /*template<typename Rho, typename KType, typename HType, typename VType, typename GammType>
+    auto TimeChangeB(const Rho& rho, const KType& k, const HType& beta, const VType& bV, const GammType& bGamm){
+        return [=](const auto& val, const auto& cfPart){
+            return rho*bV-k*val-beta*futilities::const_power(val, 2)*.5-bGamm*cfPart;
+        };
+    }*/
+    /**Curried function for Carr Wu (2004) */
+    /*template<typename Rho, typename Speed, typename HType, typename VType, typename GammType>
+    auto TimeChangeC(const Rho& rho, const Speed& a, const HType& alpha, const VType& cV, const GammType& alphaGamm){
+        return [=](const auto& val, const auto& cfPart){
+            return rho*cV+a*val-alpha*futilities::const_power(val, 2)*.5-alphaGamm*cfPart;
+        };
+    }*/
+
+    /*template<typename T, typename Number>
+    T logTimeChange(const std::vector<T>& vals, const Number& v0){
+        return -vals[0]*v0-vals[1];
+    }*/
+
+
     
     /**Helper function to compute ODE series found in http://web.stanford.edu/~duffie/dps.pdf page 10. Because of a "measure change" the addition parameter "u" is introduced.  
     note that this is with respect to T-t not t so the equations have signs switched
@@ -124,20 +146,18 @@ namespace chfunctions {
         CF&& cf
     ){ //double alpha, double mu, double beta, double c,
         auto cfPart=cf(u)-1.0;
+        const auto alpha=AlphaOrBeta(rho1, K1, H1, l1);
+        const auto beta=AlphaOrBeta(rho0, K0, H0, l0);
         return //beta, alpha
         {
-            -explSol(currentValues[0], rho1, K1, H1, l1, cfPart),
-            -explSol(currentValues[0], rho0, K0, H0, l0, cfPart)
+            alpha(currentValues[0], cfPart),
+            beta(currentValues[0], cfPart)
         };
     }
 
-    /**Curried function.  Can be called for either Alpha' or Beta'*/
-    template<typename Rho, typename KType, typename HType, typename LType>
-    auto AlphaOrBeta(const Rho& rho, const KType& K, const HType& H, const LType& l){
-        return [&](const auto& val, const auto& cf){
-            return -explSol(val, rho, K, H, l, cf);
-        };
-    }
+    
+
+    
 
     /**Curried function for stableCF.*/
     template<typename Number>
