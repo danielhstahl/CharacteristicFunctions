@@ -92,6 +92,11 @@ namespace chfunctions {
         return exp((lambda/mu)*(1-sqrt(1-(2*mu*mu*u)/lambda)));
     }
 
+    template<typename Number1, typename Number2>
+    auto exponentialCF(const Number1& u, const Number2& lambda){
+        return lambda/(lambda-u);
+    }
+
 
     /**
     Explicit "solution" for Beta'(t, T) or Alpha'(t, T)
@@ -166,8 +171,15 @@ namespace chfunctions {
     Helper function to compute expontential of the Duffie ODE
     */
     template<typename T, typename Number>
+    T logAffine(const std::vector<T>& vals, const Number& v0){
+        return vals[0]*v0+vals[1];
+    }
+    /**
+    Helper function to compute expontential of the Duffie ODE
+    */
+    template<typename T, typename Number>
     T expAffine(const std::vector<T>& vals, const Number& v0){
-        return exp(vals[0]*v0+vals[1]);
+        return exp(logAffine(vals, v0));
     }
 }
 #endif
