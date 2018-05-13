@@ -148,6 +148,29 @@ TEST_CASE("Test CIR with curried function", "[CF]"){
     );
     REQUIRE(approxBondPrice==Approx(BondPrice).epsilon(.0001));
 }
+TEST_CASE("Test CIR against runge kutta", "[CF]"){
+    auto rho1=1.0;
+    auto k0=.05; //long run average of .05/.3
+    auto k1=-.3;
+    auto H1=.09;
+    auto T=.5;
+    auto r0=.15;
+    auto beta=chfunctions::AlphaOrBeta(rho1, k1, H1, 0.0);
+    auto alpha=chfunctions::AlphaOrBeta(0.0, k0, 0.0, 0.0);
+    
+
+    REQUIRE(chfunctions::logAffine(
+        rungekutta::computeFunctional(T, 2048, std::vector<double >({0, 0}),
+            [&](double t, const std::vector<double>& x){
+                return std::vector<double>({
+                    beta(x[0], -1.0), //-1.0 doesnt matter because l is 0
+                    alpha(x[0], -1.0)//-1.0 doesnt matter because l is 0
+                });
+            }
+        ),
+        r0)==Approx(chfunctions::cirLogMGF(1.0, k0, -k1, sqrt(H1), T, r0)).epsilon(.0001));
+
+}
 
 /*TEST_CASE("Test CGMY", "[CF]"){
 
