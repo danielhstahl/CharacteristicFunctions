@@ -132,8 +132,8 @@ namespace chfunctions {
     }
 
     /**Curried function.  Can be called for either Alpha' or Beta'*/
-    template<typename T>
-    auto AlphaOrBeta(const T& rho, const T& K, const T& H, const T& l){
+    template<typename Rho, typename KType, typename HType, typename LType>
+    auto AlphaOrBeta(const Rho& rho, const KType& K, const HType& H, const LType& l){
         return [&](const auto& val, const auto& cf){
             return -explSol(val, rho, K, H, l, cf);
         };
