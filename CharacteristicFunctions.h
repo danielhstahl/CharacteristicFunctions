@@ -107,6 +107,17 @@ namespace chfunctions {
             return -rho+K*val+.5*futilities::const_power(val, 2)*H+l*cfPart;
         };
     }
+    template<typename Rho, typename KType, typename HType, typename LType>
+    auto AlphaOrBeta_move(Rho&& rho, KType&& K, HType&& H, LType&& l){
+        return [
+            rho=std::move(rho),
+            K=std::move(K),
+            H=std::move(H),
+            l=std::move(l)
+        ](const auto& val, const auto& cfPart){
+            return -rho+K*val+.5*futilities::const_power(val, 2)*H+l*cfPart;
+        };
+    }
     
     /**Helper function to compute ODE series found in http://web.stanford.edu/~duffie/dps.pdf page 10. Because of a "measure change" the addition parameter "u" is introduced.  
     note that this is with respect to T-t not t so the equations have signs switched

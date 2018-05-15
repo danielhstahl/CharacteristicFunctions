@@ -190,3 +190,28 @@ TEST_CASE("Test CIR against runge kutta average 1", "[CF]"){
         r0)==Approx(chfunctions::cirLogMGF(rho1, k1, k1, sqrt(H1), T, r0)).epsilon(.0001));
 
 }
+
+TEST_CASE("Test CIR against runge kutta average 1 move", "[CF]"){
+    auto rho1=1.0;
+    auto k1=.3; //long run avearge of 1
+    auto H1=.09;
+    auto T=.5;
+    auto r0=.5;
+    auto rho1Tmp=rho1;
+    auto k1Tmp1=-k1;
+    auto k1Tmp2=k1;
+    auto H1Tmp=H1;
+    auto beta=chfunctions::AlphaOrBeta_move(std::move(rho1Tmp), std::move(k1Tmp1), std::move(H1Tmp), 0.0);
+    auto alpha=chfunctions::AlphaOrBeta_move(0.0, std::move(k1Tmp2), 0.0, 0.0);
+    
+    REQUIRE(chfunctions::logAffine(
+        rungekutta::computeFunctional_move(T, 32, std::vector<double >({0, 0}),
+            [&](double t, const std::vector<double>& x){
+                return std::vector<double>({
+                    beta(x[0], -1.0), //-1.0 doesnt matter because l is 0
+                    alpha(x[0], -1.0)//-1.0 doesnt matter because l is 0
+                });
+            }
+        ),
+        r0)==Approx(chfunctions::cirLogMGF(rho1, k1, k1, sqrt(H1), T, r0)).epsilon(.0001));
+}
