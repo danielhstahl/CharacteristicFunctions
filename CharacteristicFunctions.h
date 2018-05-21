@@ -92,11 +92,15 @@ namespace chfunctions {
         return exp((lambda/mu)*(1-sqrt(1-(2*mu*mu*u)/lambda)));
     }
 
+    
+    template<typename Number1, typename Number2>
+    auto exponentialCFBeta(const Number1& u, const Number2& beta){
+        return 1.0/(1.0-beta*u);
+    }
     template<typename Number1, typename Number2>
     auto exponentialCF(const Number1& u, const Number2& lambda){
-        return lambda/(lambda-u);
+        return exponentialCFBeta(1.0/lambda);//lambda/(lambda-u);
     }
-
     /**Curried function.  
        Can be called for either Alpha' or Beta'.  
        Note that time runs "backwards"
