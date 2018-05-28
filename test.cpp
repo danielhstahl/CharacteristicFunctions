@@ -92,6 +92,12 @@ TEST_CASE("Test CIR with analytical", "[CF]"){
     auto approxBondPrice=chfunctions::cirMGF(1.0, a*b, a, sig, T, r0);
     REQUIRE(approxBondPrice==Approx(BondPrice));
 }
+TEST_CASE("Test CIR with zeros", "[CF]"){
+    auto T=1.0;
+    auto r0=.04;
+    auto approxBondPrice=chfunctions::cirMGF(1.0, 0.0, 0.0, 0.0, T, r0);
+    REQUIRE(std::isnan(approxBondPrice)==false);
+}
 TEST_CASE("Test CIR with Heston", "[CF]"){
     
     auto T=.25;
