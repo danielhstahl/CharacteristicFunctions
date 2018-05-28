@@ -57,7 +57,7 @@ namespace chfunctions {
     template<typename Psi, typename A, typename Kappa, typename Sigma,typename T, typename V>
     auto cirLogMGF(const Psi& psi,  const A& a, const Kappa& kappa, const Sigma& sigma,const T& t, const V& v0){
         if(isSame(kappa, 0.0)&&isSame(sigma, 0.0)){
-            return -psi;
+            return -psi*t;
         }
         const auto delta=sqrt(futilities::const_power(kappa, 2)+2.0*psi*futilities::const_power(sigma, 2));
         const auto expT=exp(-delta*t);
