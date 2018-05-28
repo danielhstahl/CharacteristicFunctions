@@ -48,11 +48,15 @@ namespace chfunctions {
             sigma
         )+cgmyLogCF(u, C, G, M, Y);
     }
+    template<typename Number, typename Compare>
+    bool isSame(const Number& num, const Compare& toCompare){
+        return std::abs(num-toCompare)<=std::numeric_limits<Compare>::epsilon();
+    }
     //note that this is of the form a-kappa*v NOT a(kappa-v)
     //see https://pdfs.semanticscholar.org/67cd/b553e2624c79a960ff79d0dfe6e6833690a7.pdf pg 14
     template<typename Psi, typename A, typename Kappa, typename Sigma,typename T, typename V>
     auto cirLogMGF(const Psi& psi,  const A& a, const Kappa& kappa, const Sigma& sigma,const T& t, const V& v0){
-        if(kappa==0.0&&sigma==0.0){
+        if(isSame(kappa, 0.0)&&isSame(sigma, 0.0)){
             return -psi;
         }
         const auto delta=sqrt(futilities::const_power(kappa, 2)+2.0*psi*futilities::const_power(sigma, 2));
